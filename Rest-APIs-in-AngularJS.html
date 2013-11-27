@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>REST APIs + AngularJS - Ofir Ovadia</title>
+
+        <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+        <meta name="author" content="Hakim El Hattab">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <style type="text/css">
+            body {
+
+                /* IE10 Consumer Preview */ 
+                background-image: -ms-linear-gradient(top left, #000000 0%, #452E59 80%);
+
+                /* Mozilla Firefox */ 
+                background-image: -moz-linear-gradient(top left, #000000 0%, #452E59 80%);
+
+                /* Opera */ 
+                background-image: -o-linear-gradient(top left, #000000 0%, #452E59 80%);
+
+                /* Webkit (Safari/Chrome 10) */ 
+                background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #000000), color-stop(0.8, #452E59));
+
+                /* Webkit (Chrome 11+) */ 
+                background-image: -webkit-linear-gradient(top left, #000000 0%, #452E59 80%);
+
+                /* W3C Markup, IE10 Release Preview */ 
+                background-image: linear-gradient(to bottom right, #000000 0%, #452E59 80%);
+                background-color: #452e59;
+            }
+
+        </style>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+
+                <!-- Home -->
+                <section>
+                    <h1><small>REST API's + AngularJS</small></h1>
+                    <h3>Consuming REST and staying alive</h3>
+                    <p>
+                        <!-- TODO: Link, created by, better, improve -->
+                        <small>Created by <a href="mailto:ofir@purplebit.com">Ofir Ovadia</a> / <a href="http://purplebit.com/">Purple Bit LTD</a></small>
+                    </p>
+                </section>
+
+                <!-- Agenda -->
+                <section>
+                    <h2>Agenda</h2>
+                    <p>
+                        <ul>
+                            <li>Why REST?</li>
+                            <li>Consuming REST in AngularJS</li>
+                            <li>Authentication</li>
+                            <li>Caching your data</li>
+                        </ul>
+                    </p>
+
+                    <aside class="notes">
+                        REST is good because it's a standard: Has many tools, works well with mobile.
+                        
+                        Authentication - Needed in every single application. 
+                        
+                        Caching - Important for large applications with lots of data.
+                    </aside>
+                </section>
+
+                <!-- Why REST? -->
+                <section>
+                    <section>
+                        <h2>Why REST?</h2>
+                    </section>
+                    <section>
+                        <h2>Hello Cap'n</h2>
+
+                        <h4>Meet Captain Hook</h4>
+                        
+                        <p>Get new loot:</p>
+                        <pre><code class="javascript">
+$http.get('/get-new-loot/').success(function(loot) {
+    console.log(loot);
+});
+                        </code></pre>
+                        <p><small>Client</small></p>
+                        <pre><code class="python">
+def get_new_loot(request): pass
+                        </code></pre>
+                        <p><small>Server</small></p>
+                    </section>
+
+                    <!-- Some non-REST examples -->
+                    <section>
+                        <h2>Hello Cap'n</h2>
+                        <p>Get sold loot, so he can steal it again..</p>
+                        <pre><code class="javascript">
+$http.get('/get-sold-loot/')...
+                        </code></pre>
+                        <p><small>Client</small></p>
+                        <pre><code class="python">
+def get_sold_loot(request): pass
+                        </code></pre>
+                        <p><small>Server</small></p>
+                    </section>
+                    <section>
+                        <h2>Hello Cap'n</h2>
+                        <p>Some loot is old, but still unsold..</p>
+                        <pre><code class="javascript">
+$http.get('/get-unsold-loot/')...
+                        </code></pre>
+                        <p><small>Client</small></p>
+                        <pre><code class="python">
+def get_unsold_loot(request): pass
+                        </code></pre>
+                        <p><small>Server</small></p>
+                    </section>
+
+                    <!-- Conclusion from non-REST -->
+                    <section>
+                        <h2>That's not REST</h2>
+
+                        <pre><code class="javascript" data-trim>
+$http.get('/get-new-loot/')...
+$http.get('/get-sold-loot/')...
+$http.get('/get-unsold-loot/')...
+$http.get('/get-expensive-loot/')...
+$http.get('/get-coin-loot/')...
+$http.get('/get-antique-loot/')...
+$http.get('/get-loot-from-specific-date/')...
+$http.get('/get-old-unsold-loot/')...
+$http.get('/get-new-unsold-loot/')...
+                        </code></pre>
+                        <p><small>Client</small></p>
+                        <pre><code class="python" data-trim>
+def get_new_loot(request): pass
+def get_sold_loot(request): pass
+def get_unsold_loot(request): pass
+def get_expensive_loot(request): pass
+def get_coin_loot(request): pass
+def get_antique_loot(request): pass
+def get_loot_from_date(request): pass
+def get_old_unsold_loot(request): pass
+def get_new_unsold_loot(request): pass
+                        </code></pre>
+                        <p><small>Server</small></p>
+                    </section>
+
+                    <!-- REST -->
+                    <section>
+                        <h2>One URL to rule them all!</h2>
+
+                        <pre><code class="javascript" data-trim>
+$http.get('/loot/?date_looted__gt=2013-11-19')...
+$http.get('/loot/?is_sold=true')...
+$http.get('/loot/?is_sold=false')...
+$http.get('/loot/?price__gt=100/')...
+$http.get('/loot/?type=coin/')...
+$http.get('/loot/?type=antique/')...
+$http.get('/loot/?date_looted=2013-11-26/')...
+$http.get('/loot/?sold=false&amp;date_looted__lte=2013-11-19')...
+$http.get('/loot/?sold=false&amp;date_looted__gt=2013-11-19')...
+                        </code></pre>
+                        <p><small>Client</small></p>
+                        <pre><code class="python">def get_loot(request): pass</code></pre>
+                        <p><small>Server</small></p>
+
+                        </code></pre>
+
+                    </section>
+
+                    <section>
+                        <h2>One URL to rule them all!</h2>
+                        <h4>Example Use Case</h4>
+
+                        <img src="img/fitblok-filters.jpg">
+                    </section>
+
+                    <!-- POST, GET ID -->
+                    <section>
+                        <h2>But there's more</h2>
+
+                        <pre><code class="javascript" data-trim>
+$http.post('/loot/', { 
+    type : 'antique', 
+    description: 'Vase', 
+    date_looted : 2013-11-26, 
+    is_sold : false, 
+    price : 136 
+})
+                        </code></pre>
+                        <p><small>Create new loot</small></p>
+
+                        <pre><code class="javascript" data-trim>
+$http.get('/loot/12/');
+// Returns: {
+//     id : 12,
+//     type : 'antique', 
+//     description: 'Vase', 
+//     date_looted : 2013-11-26, 
+//     is_sold : false, 
+//     price : 136 
+// }
+                        </code></pre>
+                        <p><small>Get specific loot</small></p>
+                    </section>
+
+                    <!-- GET LIST, PUT, DELETE -->
+                    <section>
+                        <h2>But there's more</h2>
+
+                        <pre><code class="javascript" data-trim>
+$http.get('/loot/');
+// Returns: [{
+//     id : 1,
+//     type : 'coin', 
+//     description: 'Chest of coins', 
+//     ...
+// }, { 
+//      id : 2,
+//      ...
+// }, { ... }, ... , { ... }]
+                        </code></pre>
+                        <p><small>Get all loot</small></p>
+
+                        <pre><code class="javascript" data-trim>
+$http.put('/loot/12/', { 
+    type : 'antique', 
+    description: 'Vase', 
+    date_looted : 2013-11-26, 
+    is_sold : true, 
+    price : 136
+});
+                        </code></pre>
+                        <p><small>Update loot</small></p>
+
+                        <pre><code class="javascript" data-trim>
+$http.delete('/loot/12/'); 
+                        </code></pre>
+                        <p><small>Delete loot</small></p>
+
+                    </section>
+
+                    <!-- REST Summary -->
+                    <section>
+                        <h2>REST API</h2>
+
+                        <ul>
+                            <li><strong>Objects\Resources</strong>: Loot, Lost Boys, Hooks (Nouns)</li>
+                            <li><strong>HTTP Methods</strong>: GET, POST, PUT, DELETE, PATCH (Verbs)</li>
+                            <li>&amp; More (Content Negotiation, HATEOAS)</li>
+                        </ul>
+                        <aside class="notes">
+                            The levels of REST:
+
+                            - Use HTTP.
+                            - Use Resources: Nouns + Verbs.
+                            - Content Negotiation (Type + Version)
+                            - HATEOAS (Hypermedia As The Engine Of Application State): The client should detect actions from the resource.
+                        </aside>
+                    </section>
+                </section>
+
+                <!-- Consuming REST API -->
+                <section>
+                    <section>
+                        <h2>Consume REST API w/ AngularJS</h2>
+                        <p>
+                        </p>
+                    </section>
+
+                    <!-- $http -->
+                    <section>
+                        <h3>$http</h3>
+                        <p>
+                            Use $http object directly
+                        </p>
+                        <pre><code class="javascript" data-trim>
+// Find Peter Pan
+// GET : /lost-boys/?name=Peter+Pan
+$http.get('/lost-boys/', { params : {name : 'Peter Pan'} })
+    .then(function(lostBoys) {
+        var peterPan = lostBoys[0];
+
+        // Capture
+        peterPan.captured = true;
+        // PUT: /lost-boys/7 (Assuming peterPan.id = 7)
+        return $http.put('/lost-boys/' + peterPan.id, peterPan);
+
+}).then(function(peterPan) {
+
+    // Kill
+    return $http.delete('/lost-boys/' + peterPan.id); // DELETE: /lost-boys/7
+});
+                        </code></pre>
+                    </section>
+
+                    <!-- $resource -->
+                    <section>
+                        <h3>$resource</h3>
+                        <pre><code class="javascript" data-trim>
+var LostBoys = $resource('/lost-boys/:boyId', { boyId : '@id' });
+
+// Find Peter Pan
+// GET : /lost-boys/?name=Peter+Pan
+LostBoys.query({name : 'Peter Pan'}, function(lostBoys) {
+    var peterPan = lostBoys[0];
+
+    // Capture
+    peterPan.captured = true;
+    peterPan.$save(function(peterPan) { // PUT: /lost-boys/7
+
+        // Kill
+        peterPan.$delete(); // DELETE: /lost-boys/7
+    });
+});
+                        </code></pre>
+
+                    </section>
+
+                    <!-- Restangular -->
+                    <section>
+                        <h3>Restangular</h3>
+                        <pre><code class="javascript" data-trim>
+var lostBoys = Restangular.all('lost-boys');
+
+// Find Peter Pan
+// GET : /lost-boys/?name=Peter+Pan
+lostBoys.getList({name : 'Peter Pan'}).then(function(lostBoys) {
+    var peterPan = lostBoys[0];
+    
+    // Capture
+    peterPan.captured = true;
+    return peterPan.put(); // PUT: /lost-boys/7 
+}).then(function(peterPan) {
+    
+    // Kill
+    peterPan.remove(); // DELETE: /lost-boys/7
+});
+
+                        </code></pre>
+
+                    </section>
+
+                    <section>
+                        <h2>Restangular</h2>
+                        <h5>More benefits</h5>
+                        <p>
+                            <ul>
+                                <li>Uses promises</li>
+                                <li>Doesn't rely on URLs</li>
+                                <li>Better support for HATEOAS</li>
+                                <li>More Explicit</li>
+                                <li>Less bugs</li>
+                                <li>The full list is <a target="_blank" href="https://github.com/mgonto/restangular#differences-with-resource">here</a></li>
+                            </ul>
+                        </p>
+                    </section>
+                </section>
+
+                <!-- Authentication -->
+                <section>
+                    <section>
+                        <h2>Authentication</h2>
+                        <p>
+                            
+                        </p>
+
+                    </section>
+
+                    <!-- Log In - Naive -->
+                    <section>
+                        <h3>Log In - Naive Way</h3>
+
+                        <pre><code class="javascript" data-trim>
+if (/* Logged In */) {
+
+    Restangular.getList('/crocodile-sightings/').then(function(sightings) { 
+        // Flee?
+    });
+} else {
+    
+    // Show log in dialog.
+}
+                        </code></pre>
+                    </section>
+
+                    <!-- Log In - Clutter -->
+                    <section>
+                        <h3>Log In</h3>
+
+                        <pre><code class="javascript" data-trim>
+if (/* Logged In */) {
+
+    Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+} else {
+    
+    // Show log in dialog.
+}
+
+// ...
+
+Restangular.getList('/hooks/').then(function(hooks) { ... });
+
+// ...
+
+if (/* Logged In */) {
+
+    Restangular.getList('/ships/').then(function(ships) { ... });
+} else {
+    
+    // Show log in dialog.
+}
+
+// ...
+
+if (/* Logged In */) {
+
+    Restangular.getList('/loot/').then(function(loot) { ... });
+} else {
+    
+    // Show log in dialog.
+}
+                        </code></pre>
+                        <small><ul>
+                            <li>Repetition (maintenance nightmare)</li>
+                            <li>Client needs to know</li>
+                        </ul></small>
+                    </section>
+
+                    <!-- Log In - Decorator -->
+                    <section>
+                        <h3>Log In Decorator</h3>
+                        <pre><code class="javascript" data-trim>
+logInRequired(function () {
+    
+    Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+});
+
+// ...
+
+Restangular.getList('/hooks/').then(function(hooks) { ... });
+
+// ...
+
+logInRequired(function () {
+
+    Restangular.getList('/ships/').then(function(ships) { ... });
+});
+
+// ...
+
+logInRequired(function () {
+
+    Restangular.getList('/loot/').then(function(loot) { ... });
+});
+                        </code></pre>
+
+                        <small><ul>
+                            <li>Less repetition</li>
+                            <li>Client still needs to know</li>
+                        </ul></small>
+
+                    </section>
+
+                    <section>
+                        <h3>Log In - Optimal Way</h3>
+
+                        <pre><code class="javascript" data-trim>
+Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+
+// ...
+
+Restangular.getList('/hooks/').then(function(hooks) { ... });
+
+// ...
+
+Restangular.getList('/ships/').then(function(ships) { ... });
+
+// ...
+
+Restangular.getList('/loot/').then(function(loot) { ... });
+                        </code></pre>
+                    </section>
+
+
+                    <section>
+                        <h3>Leverage 401s and AngularJS</h3>
+
+                        <p><small>
+                            Based on <a href="https://github.com/witoldsz/angular-http-auth">AngularJS HTTP Auth Interceptor Module</a>
+                        </small></p>
+
+                        <p>Write your code as usual</p>
+                        <pre><code class="javascript" data-trim>
+Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+
+// ...
+
+Restangular.getList('/hooks/').then(function(hooks) { ... });
+
+// ...
+
+Restangular.getList('/ships/').then(function(ships) { ... });
+
+// ...
+
+Restangular.getList('/loot/').then(function(loot) { ... });
+                        </code></pre>
+
+                    </section>
+
+                    <!-- Got 401? -->
+                    <section>
+
+                        <h3>Leverage 401s and AngularJS</h3>
+
+                        <p><small>
+                            Based on <a href="https://github.com/witoldsz/angular-http-auth">AngularJS HTTP Auth Interceptor Module</a>
+                        </small></p>
+
+                        <pre><code class="javascript" data-trim>
+Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+                        </code></pre>
+
+                        <p>Got a 401?</p>
+
+                        <img src="img/401.jpg" />
+                    </section>
+                    <section>
+
+                        <h3>Leverage 401s and AngularJS</h3>
+                        <p><small>
+                            Based on <a href="https://github.com/witoldsz/angular-http-auth">AngularJS HTTP Auth Interceptor Module</a>
+                        </small></p>
+
+                        <p>Store the request</p>
+
+                        <pre><code class="javascript" data-trim>
+var failedRequests = [];
+
+failedRequests.push(request); // request = Restangular.getList('/crocodile-sightings/')
+
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Leverage 401s and AngularJS</h3>
+
+                        <p><small>
+                            Based on <a href="https://github.com/witoldsz/angular-http-auth">AngularJS HTTP Auth Interceptor Module</a>
+                        </small></p>
+
+                        <p>Show the Log In screen</p>
+                        <img src="img/fitblok-login-small.jpg" />
+                    </section>
+
+                    <section>
+                        <h3>Leverage 401s and AngularJS</h3>
+
+                        <p><small>
+                            Based on <a href="https://github.com/witoldsz/angular-http-auth">AngularJS HTTP Auth Interceptor Module</a>
+                        </small></p>
+
+                        <p>Retransmit requests</p>
+                        <pre><code class="javascript" data-trim>
+retransmit(failedRequests);
+                        </code></pre>
+                        <p>&nbsp;</p>
+                        <pre><code class="javascript" data-trim>
+Restangular.getList('/crocodile-sightings/').then(function(sightings) { ... });
+                        </code></pre>
+                        <p><small>Original flow of program continues</small></p>
+                    </section>
+                </section>
+                <!-- /Authentication -->
+
+                <!-- Caching -->
+                 <section>
+                    <section>
+                        <h2>Caching</h2>
+                        <ul>
+                            <li>URL Caching</li>
+                            <li>Object Caching</li>
+                        </ul>
+
+                    </section>
+
+                    <!-- URL Caching -->
+                    <section>
+                        <h3>URL Caching</h3>
+                        <h5>Motivation</h5>
+
+                        <p>Controller 1</p>
+                        <pre><code class="javascript" data-trim>
+// GET : /hooks/
+Restangular.all("hooks").getList().then(function(hooks) {
+    // Do something with hooks...
+});
+                        </code></pre>
+
+                        <p>Controller 2</p>
+                        <pre><code class="javascript" data-trim>
+// GET : /hooks/
+Restangular.all("hooks").getList().then(function(hooks) {
+    // Do something else with hooks...
+});
+                        </code></pre>
+
+                    </section>
+
+                    <section>
+                        <h3>URL Caching</h3>
+                        <h5>Implementation</h5>
+
+                        <pre><code class="javascript" data-trim>
+angular.module('app', ['restangulat'])
+    .config(['RestangularProvider', function(RestangularProvider) {
+
+        ... 
+        RestangularProvider.setDefaultHttpFields({cache: true});
+        ...
+    }
+]);
+                        </code></pre>
+                        <p><small>(Implemented in AngularJS's level)</small></p>
+                    </section>
+
+                    <!-- Object Caching -->
+                    <section>
+                        <h3>Object Caching</h3>
+                        <h5>Motivation</h5>
+
+                        <p>Controller 1</p>
+                        <pre><code class="javascript" data-trim>
+// GET: /hooks/
+Restangular.all("hooks").getList().then(function(hooks) {
+    // Got: [{ id : 3, ... }, { id : 7, ... }, { id : 12, ... }, ...]
+
+    // Do something with all hooks...
+});
+                        </code></pre>
+
+                        <p>Controller 2</p>
+                        <pre><code class="javascript" data-trim>
+// GET: /hooks/12/
+Restangular.one("hooks", 12).get().then(function(hook) {
+    // Got: { id : 12, ... }
+
+    // Take a really close look at hook #12...
+});
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Object Caching</h3>
+                        <h5>Implementation</h5>
+                        <p><small>Roll your own service</small></p>
+                        <pre><code class="javascript" data-trim>
+angular.module('app').factory(
+    'hooksService', ['Restangular', '$q' function(Restangular, $q) {
+        var hooksCache = {}, 
+            hooksService = {};
+
+        hooksService.getHook = function(id) {
+
+            if (/* id in hooksCache */) {
+                var deferred = $q.defer();
+
+                deferred.resolve(/* hooksCache(id) */);
+
+                return deferred.promise;
+            } else {
+                return Restangular.one('hooks', id).then(function(hook) {
+                    // Store hook in hooksCache.
+
+                    return hook;
+                });
+            }
+        };
+
+        return hooksService;
+    }
+]);
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Object Caching</h3>
+                        <h5>(Another) Motivation</h5>
+                        
+                        <pre><code class="javascript" data-trim>
+// GET: /hooks/12/
+Restangular.one("hooks", 12).get().then(function(hook) {
+    // Got: { id : 12, ... }
+
+    // Take a really close look at hook #12...
+});
+                        </code></pre>
+
+                        <ul>
+                            <li>Immediately resolve promise with cached data</li>
+                            <li>Call the server</li>
+                            <li>Resolve promise again with data from server</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Object Caching</h3>
+                        <h5>(Another) Implementation</h5>
+
+                        <p><small>Use callbacks instead of promises</small></p>
+
+                        <pre><code class="javascript" data-trim>
+angular.module('app').factory(
+    'hooksService', ['Restangular', '$q' function(Restangular, $q) {
+        var hooksCache = {}, 
+            hooksService = {};
+
+        hooksService.getHook = function(id, callback) {
+
+            if (/* id in hooksCache */) {
+                callback(/* hooksCache(id) */);
+            }
+
+            // Call server anyway.
+            return Restangular.one('hooks', id).then(function(hook) {
+                callback(hook);
+
+                return hook;
+            });
+        };
+
+        return hooksService;
+    }
+]);
+                        </code></pre>
+                    </section>
+                </section>
+                <!-- /Caching -->
+
+                <!-- Thanks -->
+                <section>
+                    <h2>The End</h2>
+                    <h6>/ By Ofir Ovadia</h6>
+                    <p>
+                        For source code, email <a href="mailto:hook@purplebit.com">hook@purplebit.com</a>
+                    </p>
+                </section>
+
+                <!-- /End -->
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
